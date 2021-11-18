@@ -1,0 +1,4 @@
+# static directory
+
+1. 이 폴더 내의 파일들은 HTTP 를 통해 어플리케이션 사용자들이 이용할 수 있다.
+2. CSS, JavaScript 파일들이 저장되는 디렉토리이다.

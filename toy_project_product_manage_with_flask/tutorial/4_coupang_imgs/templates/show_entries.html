@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>coupang admin</title>
+</head>
+<body>
+    <h1>관리자 페이지</h1>
+    {% if not session.get("logged_in") and "success" not in request.url %}
+        <form action="login" method="post">
+            <div>Username</div>
+            <input type="text"
+                   autofocus
+                   placeholder="username"
+                   name="username">
+            <br>
+            <div>Password</div>
+            <input type="text"
+                   autofocus
+                   placeholder="password"
+                   name="password">
+            <br>
+            <button type="submit">login</button>
+        </form>
+    {% else %}
+        {% if "success" not in request.url %}
+        <form action="logout">
+            <button type="submit">logout</button>
+        </form>
+        {% endif %}
+        <table class="datas">
+            <thead>
+                <tr>
+                    {% if "success" not in request.url %}
+                        <th>선택</th>
+                    {% else %}
+                        <th>삭제</th>
+                        <th>수정</th>
+                    {% endif %}
+                    <th>id</th>
+                    <th>code</th>
+                    <th>name</th>
+                    <th>brand name</th>
+                    <th>hash tag</th>
+                    <th>star</th>
+                    <th>star count</th>
+                    <th>weight</th>
+                    <th>ml</th>
+                    <th>product count</th>
+                    <th>price</th>
+                    <th>datetime</th>
+                    <th>flag</th>
+                    <th>ingredient name</th>
+                    <th>view</th>
+                    <th>product img path</th>
+                    <th>product detail img paths</th>
+                    <th>product url</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if "success" not in request.url %}
+                {% for data in datas %}
+                <form class="select"
+                      action="{{ url_for('data_select_success') }}"
+                      method="post"
+                      target="_blank">
+                    <tr class="data">
+                        <td>
+                            <input type="checkbox" name="check" value="{{ data }}">
+                            <button type="submit" name="check" value="{{ data }}">이것만 추가</button>
+                        </td>
+                        {% for element in data %}
+                        <td>
+                            {% if "img_files" in (element|to_string) %}
+                                {% if "detail" not in (element|to_string) %}
+                                <img src="{{ url_for('static', filename=element) }}">
+                                {% else %}
+                                    {{ element }}
+                                {% endif %}
+                            {% else %}
+                                {% if "http" in element|to_string %}
+                                    <a href="{{ element }}" target="_blank">{{ element }}</a>
+                                {% else %}
+                                    {{ element }}
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                    <tr>
+                        <td>
+                            <button class="select" type="submit">추가</button>
+                        </td>
+                    </tr>
+                </form>
+            {% else %}
+                {% for data in datas %}
+                <form class="delete" action="{{ url_for('data_delete') }}" method="post">
+                    <tr class="data">
+                        <td>
+                            <input type="checkbox" name="check" value="{{ data }}">
+                            <button type="submit" name="check" value="{{ data }}">이것만 삭제</button>
+                        </td>
+                        <td>
+                            <button class="revise"
+                                    type="submit"
+                                    name="button_for_revise"
+                                    value="{{ data }}"
+                                    formmethod="post"
+                                    formaction="{{ url_for('show_revised_page_for_selected_data') }}">
+                                수정하러가기
+                            </button>
+                        </td>
+                        {% for element in data %}
+                        <td>
+                            {% if "img_files" in (element|to_string) %}
+                                {% if "detail" not in (element|to_string) %}
+                                <img src="{{ url_for('static', filename=element) }}"
+                                     alt="product representative img">
+                                {% else %}
+                                    {% for img_path in (element|split_by_comma) %}
+                                    <img src="{{ url_for('static', filename=img_path) }}"
+                                         alt="product detail img">
+                                    {% endfor %}
+                                {% endif %}
+                            {% else %}
+                                {% if "http" in element|to_string %}
+                                    <a href="{{ element }}" target="_blank">{{ element }}</a>
+                                {% else %}
+                                    {{ element }}
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                    <tr>
+                        <td>
+                            <button class="delete" type="submit">삭제</button>
+                        </td>
+                    </tr>
+                </form>
+            {% endif %}
+            </tbody>
+        </table>
+    {% endif %}
+
+<style>
+    table {
+        width: 100%;
+        border: 1px solid #444444;
+        border-collapse: collapse;
+    }
+    th {
+        border: 1px solid #444444;
+    }
+    td {
+        border: 1px solid #444444;
+    }
+</style>
+</body>
+</html>
+

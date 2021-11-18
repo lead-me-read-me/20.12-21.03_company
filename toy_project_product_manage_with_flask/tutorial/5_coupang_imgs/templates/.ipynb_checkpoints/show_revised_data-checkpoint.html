@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>coupang revised data</title>
+</head>
+<body>
+    <h1>선택, 수정된 데이터 관리</h1>
+    <form action="main" method="post">
+        <button type="submit">데이터 선택하러가기</button>
+    </form>
+    <form action="already_revised" method="post">
+        <button type="submit">선택된 데이터 보러가기</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>수정하러가기</th>
+                <th>이것만 삭제</th>
+                {% if not datas|is_empty %}
+                    {% for title, _ in datas[0].items() %}
+                    <th>{{ title }}</th>
+                    {% endfor %}
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in datas %}
+            <tr>
+                <td>
+                    <form action="{{ url_for('show_revising_element_from_already_revised') }}" method="get">
+                        <button type="submit"
+                                name="id"
+                                value="{{ data['id'] }}">수정하러가기</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="{{ url_for('delete_data') }}" method="post">
+                        <button type="submit"
+                                name="deleted_data_id"
+                                value="{{ data['id'] }}">
+                            이것만 삭제
+                        </button>
+                    </form>
+                </td>
+                {% for title, element in data.items() %}
+                    {% if title == "name" %}
+                    <td><a href="{{ url_for('just_view_for_selected', id=data['id']) }}">{{ element }}</a></td>
+                    {% else %}
+                    <td>{{ element }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+<style>
+    table {
+        width: 100%;
+        border: 1px solid #444444;
+        border-collapse: collapse;
+    }
+    th {
+        border: 1px solid #444444;
+    }
+    td {
+        border: 1px solid #444444;
+    }
+</style>
+</html>

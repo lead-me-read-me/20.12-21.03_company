@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>coupang admin</title>
+</head>
+<body>
+    <h1>데이터 선택 및 수정</h1>
+    <form action="logout" method="post">
+        <button type="submit"><h3>logout</h3></button>
+    </form>
+    <form action="main" method="post">
+        <button type="submit">데이터 선택하러가기</button>
+    </form>
+    <form action="already_revised" method="post">
+        <button type="submit">선택된 데이터 보러가기</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>선택 및 수정</th>
+                <th>id</th>
+                <th>name</th>
+                <th>datetime</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in datas %}
+            <tr>
+                <td>
+                    <form method="get" action="{{ url_for('show_revising_element_from_main') }}">
+                        <button type="submit"
+                                name="id"
+                                value="{{ data[0] }}"
+                                formtarget="_blank">
+                            선택 및 수정
+                        </button>
+                    </form>
+                </td>
+                {% for element in data %}
+                <td>
+                    {% if element|is_name %}
+                        <a href="{{ url_for('just_view_for_init', id=data[0])}}">{{ element }}</a>
+                    {% else %}
+                        {{ element }}
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+<style>
+    table {
+        width: 100%;
+        border: 1px solid #444444;
+        border-collapse: collapse;
+    }
+    th {
+        border: 1px solid #444444;
+    }
+    td {
+        border: 1px solid #444444;
+    }
+</style>
+</html>

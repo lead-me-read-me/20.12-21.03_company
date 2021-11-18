@@ -1,0 +1,172 @@
+참고 : https://flask-docs-kr.readthedocs.io/ko/latest/views.html
+
+1. 플러거블 뷰(pluggable views, 끼워넣는 뷰) ?
+  1.1. 함수가 아닌 클래스를 기반으로한 Django 프레임워크의 제네릭 뷰(generic view)에 영향을 받았다.
+  1.2. 구현체의 부분들을 바꿀수 있고 이 방식으로 맞춤과 끼워넣는 것이 가능한 뷰를 갖는것이 주 목적임 (??)
+
+2. 기본 원칙
+```python
+# 데이터베이스에서 어떤 객체의 목록을 읽어서 템플릿을 보여주는 함수
+@app.route('/users/')
+def show_users(page):
+    users = Users.query.all()
+    return render_template('users.html', users=users)
+```
+
+  2.1. 클래스 기반의 뷰로 변환하기
+```python
+from flask.views import View
+
+# `flask.views.View` 의 서브 클래스 생성 후,
+# `dispatch_request()` 메서드를 구현한다.
+# `as_view()` 클래스 메서드를 사용해 실제 뷰 함수로 변환해야한다.
+class ShowUsers(View):
+
+    def dispatch_request(self):
+        users = User.query.all()
+        return render_template("users.html", objects=users)
+app.add_url_rule('/users/', view_func=ShowUsers.as_view("show_users"))
+```
+
+  2.2. 아래 코드 동작 방식
+   - 요청이 들어올때마다 클래스의 인스턴스 생성후,
+     dispatch_request() 메서드가 url 규칙으로부터 나온 인자를 가지고 호출된다.
+   - 클래스 그 자체로는 `as_view()` 함수에 넘겨지는 인자들을 가지고 인스턴스화된다.
+```python
+from flask.views import View
+
+class ListView(View):
+
+    def get_template_name(self):
+        raise NotImplementedError()
+
+    def render_template(self, context):
+        return render_template(self.get_template_name(), **context)
+
+    def dispatch_request(self):
+        context = {"objects": self.get_objects()}
+        return self.render_template(context)
+
+class UserView(ListView):
+
+    def get_template_name(self):
+        return 'users.html'
+
+    def get_objects(self):
+        return Users.query.all()
+```
+
+```python
+class RenderTemplateView(View):
+    def __init__(self, template_name):
+        self.template_name = template_name
+    def dispatch_request(self):
+        return render_template(self.template_name)
+
+app.add_url_rule('/about',
+                 view_func=RenderTemplateView.as_view('about_page', template_name='about.html'))
+```
+
+3. 메서드 힌트
+ - 끼워넣을 수 있는 뷰는 `route()`나 `methods()`속성 정보를 제공할 수 있다.
+```python
+class MyView(View):
+    methods = ['GET', 'POST']
+    def dispatch_request(self):
+        if request.method = 'POST':
+            ...
+        ...
+app.add_url_rule('/myview', view_func=MyView.as_view('myview'))
+```
+
+4. 메서드 기반 디스패치
+ - RESTful API 에서 각 HTTP 메서드별로 다른 함수를 수행하는 것은 좋다.
+   (flask.view.MethodView)
+ - 각 HTTP 메서드는 같은 이름을 가진 함수(소문자)로 연결된다.
+ - methods 속성을 제공하지 않아도 클래스에 정의된 메서드 기반으로 자동설정됨.
+```
+from flask.views import MethodView
+
+class UserAPI(MethodView):
+
+    def get(self):
+        users = User.query.all()
+        ...
+    def post(self):
+        user = User.from_form_data(re
+```
+
+5. 데코레이팅 뷰
+ - 뷰 클래스 그 자체는 라우팅 시스템에 추가되는 뷰 함수가 아니라서 클래스 자체를 데코레이팅하는 것은 무엇인가 싶음
+ - 수동으로 `as_view()` 함수의 리턴값을 데코레이팅해야한다.
+```python
+def user_require(f):
+    # Checks whether user is logged in or raises error 401.
+    def decorator(*args, **kwargs):
+        if not g.user:
+            abort(401)
+        return f(*args, **kwargs)
+    return decorator
+view = user_required(UserAPI.as_view('users'))
+app.add_url_rule('/users', view_func=view)
+
+class UserAPI(MethodView):
+    decorators = [user_required]  # 데코레이터 목록 표시
+```
+
+6. 메서드 뷰 API
+ - 웹 API 는 보통 HTTP 메서드와 매우 밀접하게 동작한다.
+   (`MethodView`기반의 API 를 구현할때는 더욱 의미가 맞는다.)
+ - API 가 같은 메서드 뷰로 가는 여러 다른 URL 규칙을 요구한다는 것을 숙지해야함.
+ - 예.
+|URL	    |Method	|Description            |
+|:---------:|:-----:|:---------------------:|
+|/users/	|GET	|전체 사용자 정보 목록 얻기|
+|/users/	|POST   |새로운 사용자 정보 생성   |
+|/users/<id>|GET	|단일 사용자 정보 얻기     |
+|/users/<id>|PUT	|단일 사용자 정보 갱신     |
+|/users/<id>|DELETE	|단일 사용자 정보 삭제     |
+
+```python
+class UserAPI(MethodView):
+
+    def get(self, user_id):
+        if user_id is None:
+            # return a list of users
+            pass
+        else:
+            # expose a single user
+            pass
+
+    def post(self):
+        # create a new user
+        pass
+
+    def delete(self, user_id):
+        # delete a single user
+        pass
+
+    def put(self, user_id):
+        # update a single user
+        pass
+```
+
+ - 라우팅 시스템 연결 방법은?
+```python
+user_view = UserAPI.as_view("user_api")
+app.add_url_rule('/users/', defaults={'user_id': None},
+                 view_func=user_view, methods=['GET',])
+app.add_url_rule('/users/', view_func=user_view, methods=['POST',])
+app.add_url_rule('/users/<int:user_id>', view_func=user_view,
+                 methods=['GET', "PUT", "DELETE"])
+
+# 유사해보이는 여러 API 를 가진 경우, 등록하는 메서드를 추가할 수 있게끔 아래처럼 리팩토링이 가능.
+def register_api(view, endpoint, url, pk='id', pd_type='int'):
+    view_func = view.as_view(endpoint)
+    app.add_url_rule(url, defaults={pk: None},
+                     view_func=view_func, methods=['GET',])
+    app.add_url_rule(url, view_func=view_func, methods=['POST',])
+    app.add_url_rule("{}<{}:{}>".format(url, pk_type, pk), view_func=view_func,
+                     methods=['GET', 'PUT', 'DELETE'])
+register_api(UserAPIm, 'user_api', '/users/', pk='user_id')
+```

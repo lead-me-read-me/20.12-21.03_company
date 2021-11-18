@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>coupang admin revise</title>
+</head>
+<body>
+    <h1>데이터 수정하기</h1>
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th>id(수정불가)</th>
+                <th>code</th>
+                <th>name</th>
+                <th>brand name</th>
+                <th>hash tag</th>
+                <th>star</th>
+                <th>star count</th>
+                <th>weight</th>
+                <th>ml</th>
+                <th>product count</th>
+                <th>price</th>
+                <th>datetime</th>
+                <th>flag</th>
+                <th>ingredient name</th>
+                <th>view</th>
+                <th>product img path</th>
+                <th>product detail img paths</th>
+                <th>product url</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>수정 <strong>전</strong></td>
+                {% for element in datas %}
+                <td>
+                    {% if "img_files" in element|to_string %}
+                        {% if "detail" not in element %}
+                            <img src="{{ url_for('static', filename=element) }}">
+                        {% else %}
+                            {% for img_path in element|split_by_comma %}
+                            <img src="{{ url_for('static', filename=img_path) }}">
+                            {% endfor %}
+                        {% endif %}
+                    {% else %}
+                        {% if "http" in element %}
+                            <a href="{{element}}"
+                               target="_blank">{{ element }}</a>
+                        {% else %}
+                            {{ element }}
+                        {% endif %}
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            <form method="post">
+                <tr>
+                    <td>수정 <strong>후</strong></td>
+                    <td>{{ datas[0] }}</td>
+                {% for element in datas[1:] %}
+                    <td>
+                        <div style="display:none;">
+                            <textarea name="original_data" readonly>{{ datas }}</textarea>
+                        </div>
+                        {% if "img_files" in element|to_string %}
+                            <div>
+                                <textarea name="revised_element" readonly>{{ element }}</textarea>
+                            </div>
+                            {% if "detail" not in element %}
+                                <img src="{{ url_for('static', filename=element) }}">
+                            {% else %}
+                                {% for img_path in element|split_by_comma %}
+                                <img src="{{ url_for('static', filename=img_path) }}">
+                                <input type="checkbox"
+                                       name="selected_detail_img"
+                                       value="{{ img_path }}"
+                                       checked="checked">
+                                <br>
+                                {% endfor %}
+                            {% endif %}
+                        {% else %}
+                            <textarea name="revised_element">{{ element }}</textarea>
+                        {% endif %}
+                    </td>
+                {% endfor %}
+                </tr>
+                <tr>
+                    <td>
+                        <button type="submit"
+                                formaction="{{ url_for('data_revising') }}"
+                                formmethod="post">
+                            수정완료
+                        </button>
+                    </td>
+                </tr>
+            </form>
+        </tbody>
+    </table>
+</body>
+</html>
+
+<style>
+    table {
+        width: 100%;
+        border: 1px solid #444444;
+        border-collapse: collapse;
+    }
+    th {
+        border: 1px solid #444444;
+    }
+    td {
+        border: 1px solid #444444;
+    }
+    textarea {
+        height: 200px;
+    }
+</style>
+

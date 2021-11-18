@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>coupang data view page</title>
+</head>
+<body>
+<h1>데이터 열람 페이지</h1>
+<form action="../main" method="post">
+    <button type="submit">데이터 선택하러가기</button>
+</form>
+<form action="../already_revised" method="post">
+    <button type="submit">선택된 데이터 보러가기</button>
+</form>
+<div>
+    <a href="{{ datas['product_url'] }}" target="_blank">
+        <img src="{{ url_for('static', filename=datas['product_img_path']) }}"
+             alt="product represent image"
+             border="1">
+    </a>
+</div>
+{% for element_title, element in datas.items() %}
+    {% if element_title == 'product_detail_img_paths' %}
+        {% if not element|is_empty %}
+            {% for img_path in element|split_by_comma %}
+            <span>
+                <img src="{{ url_for('static', filename=img_path) }}"
+                     alt="product detail image"
+                     border="1">
+            </span>
+            {% endfor %}
+        {% endif %}
+    {% elif element_title == 'product_url' %}
+    {% elif element_title == 'product_img_path'%}
+    {% else %}
+        <div><strong>{{ element_title }}</strong> : {{ element }}</div>
+    {% endif %}
+{% endfor %}
+<form action="{{ url_for('show_revising_element_from_main') }}"
+      method="get">
+    <button type="submit"
+            name="id"
+            value="{{ datas['id'] }}">선택 및 수정하기</button>
+</form>
+</body>
+</html>

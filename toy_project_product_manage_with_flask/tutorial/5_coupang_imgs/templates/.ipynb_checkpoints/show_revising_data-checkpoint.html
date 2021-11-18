@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>coupang admin revise data</title>
+</head>
+<body>
+<h1>데이터 수정 및 저장하기</h1>
+<div>
+    <a href="{{ datas['product_url'] }}" target="_blank">
+        <img src="{{ url_for('static', filename=datas['product_img_path']) }}"
+             alt="product represent image"
+             border="1">
+    </a>
+</div>
+<form action="revising" method="post">
+{% for element_title, element in datas.items() %}
+    {% if element_title == 'id' %}
+        <div><strong>{{ element_title }}(수정불가)</strong> : {{ element }}
+            <textarea name="revised_element" style="display:none;">{{ element }}</textarea>
+        </div>
+
+    {% elif element_title == 'name' %}
+        <div><strong>{{ element_title }}</strong> : {{ element }}</div>
+        <div>
+            <textarea name="revised_element"
+                      style="width:800px;">{{ element }}</textarea>
+        </div>
+
+    {% elif element_title == 'date' %}
+        <div>
+            <textarea name="revised_element" style="display:none;">{{ element }}</textarea>
+        </div>
+        <div><strong>date(수정불가)</strong> : {{ element }}</div>
+
+    {% elif element_title == 'product_img_path' %}
+        <div>
+            <textarea name="revised_element" style="display:none;">{{element}}</textarea>
+        </div>
+
+    {% elif element_title == 'product_detail_img_paths' %}
+        <textarea style="display:none;"
+                  readonly
+                  name="revised_element">{{ element }}</textarea>
+        {% if not element|is_empty %}
+            {% for img_path in element|split_by_comma %}
+            <span>
+                <input type="checkbox"
+                       name="revised_product_detail_paths"
+                       value="{{ img_path }}"
+                       checked>
+                <img src="{{ url_for('static', filename=img_path) }}"
+                     alt="product detail image"
+                     border="1">
+            </span>
+            {% endfor %}
+        {% endif %}
+    {% elif element_title == 'product_url' %}
+        <textarea name="revised_element" style="display:none;">{{ element }}</textarea>
+
+    {% else %}
+        <div><strong>{{ element_title }}</strong> : {{ element }}
+            <textarea name="revised_element">{{ element }}</textarea>
+        </div>
+    {% endif %}
+{% endfor %}
+    <div>
+        <button type="submit">수정완료</button>
+    </div>
+</form>
+</body>
+</html>

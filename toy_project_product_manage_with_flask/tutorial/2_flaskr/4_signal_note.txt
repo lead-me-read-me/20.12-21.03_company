@@ -1,0 +1,102 @@
+1. 시그널이란?
+ 핵심 프레임워크나 다른 플라스크 확장의 어느 곳에서 동작이 발생했을 때 공지를 보내어
+ 어플리케이션을 동작하게 하여 어플리케이션간의 의존성을 분리하도록 돕는다.
+ 즉, 시그널은 특정 시그널 발신자가 어떤 일이 발생했다고 수신자에게 알려준다.
+
+2. 시그널의 의도 : 수신자에게 무엇인가를 알리는 것
+                 (수신자가 데이터를 변경하도록 권장하지 않아야함.)
+
+3. 모든 시그널은 정해진 순서 없이 실행되며 어떤 데이터도 수정하지 않는다.
+
+4. 시그널 수신
+  4.1. 시그널의 connect(호출되는 함수, 송신자) 메서드.
+  4.2. 시그널의 disconnect() 메서드 : 해당 시그널의 송신을 중단.
+  4.3. 헬퍼 메서드 [ connected_to(템플릿 목록) ]
+```python
+from flask import template_rendered
+
+def caputured_templates(app, recorded, **extra):
+    def record(sender, template, context):
+        recorded.append((template, context))
+    return template_rendered.connected_to(record, app)
+```
+
+```python
+templates = []
+with captured_templates(app, templates, **extra):
+    ...
+    template, context = templates[0]
+```
+
+5. 시그널 생성
+  5.1. 웹 애플리케이션에서 시그널 사용 : 직접 blinker 라이브러리 사용
+       (예. `Namespace` 클래스에 시그널을 명명하는 것)
+```python
+from blinker import Namespace
+my_signals = Namespace())
+
+# 새 시그널 생성
+model_saved = my_signals.signal("model-saved")
+```
+
+6. 시그널 보내기
+  6.1. send(송신자, 수신자에게 전달할 키워드 인자) 메서드 호출
+  6.2. 임의의 함수에서 시그널을 전송한다면
+       current_app._get_current_object() 를 송신자로 전달
+       (current_app 은 실제 어플리케이션 객체가 아닌 프락시 객체 -> 시그널 송신자로 보내지 않는다.)
+```python
+# 시그널을 보내는 클래스
+class Model(object):
+    ...
+    def save(self):
+        model_saved.send(self)
+```
+
+7. 시그널과 플라스크 요청 컨텍스트
+  7.1. 시그널 수신시 요청 컨텍스트를 완전히 지원한다.
+
+8. 시그널 수신 기반 데코레이터
+  8.1. `connect_via()` 데코레이터로 시그널을 수신한다.
+from flask import template_render
+```python
+@template_rendered.connect_via(app)
+def when_template_rendered(sender, template, context, **extra):
+    print("Template {} is rendered with {}".format(template.name, context))
+```
+
+9. 핵심 시그널
+  9.1. flask.template_rendered : 템플릿이 성공적으로 뿌려졌을때 송신됨.
+  ```python
+  def log_template_renders(sender, template, context, **extra):
+      sender.logger.debug("Rendering template {} with context {}" \
+                          .format(template.name or "string template", context))
+  from flask import template_rendered
+  template_rendered.connect(log_template_renders, app
+  ```
+
+  9.2. flask.request_started : 요청 처리 시작 전에 요청 컨텍스트가 만들어진 경우 송신됨.
+                               (이 경우, 수신자는 `request`로 요청 참조 가능)
+  ```python
+  def log_request(sender, **extra):
+      sender.logger.debug("Request context is set up")
+  from flask import request_started
+  request_started.connect(log_request, app)
+  ```
+
+  9.3. flask.request_finished : 클라이언트로 응답이 가기 바로 전에 송신됨.
+                                (response 인자로 응답 객체를 넘겨줌.)
+  ```python
+  def log_response(sender, response, **extra):
+      sender.logger.debug("Request context is about to close down. Response: {}".format(response))
+  from flask import request_finished
+  request_finished.connect(log_response, app)
+  ```
+
+  9.4. flask.got_request_exception : 요청 처리 동안 예외 발생시 예외 처지 시작 전에 송신됨.
+                                     (예외 처리를 하지 않는 디버깅 환경에도 송신됨)
+
+  9.5. flask.request_tearing_down : 요청 객체가 제거될 때 송신됨.
+                                    (요청 처리 과정에서 오류 발생시에도 호출됨.)
+
+  9.6. flask.appcontext_tearing_down : 어플리케이션 컨텍스트가 제거될 때 송신됨.
+                                       (예외 발생시에도 이 시그널은 항상 호출됨.)
