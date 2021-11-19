@@ -38,7 +38,7 @@
   * Custom Templates
     * [data_revise](./tutoal/4_coupang_imgs/templates/data_revise.html) 
     * [show entries](./tutoal/4_coupang_imgs/templates/show_entries.html) 
-  * Pipeline Flow: [Link](./tutorial/4_coupang_imgs/coupang_data_admin_page_1nd.pdf) 
+  * Pipeline Flow: [Link](./tutorial/4_coupang_imgs/coupang_data_admin_page_1st.pdf) 
 * [Code version 2.0](./tutorial/5_coupang_imgs/5_main.py) 
   * version 1.0 대비 페이지를 더 세분화 시켰다.
   * Custom Templates
