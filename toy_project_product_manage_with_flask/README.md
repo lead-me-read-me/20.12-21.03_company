@@ -48,3 +48,13 @@
     * [show page for revising data](./tutoal/5_coupang_imgs/templates/show_revising_data.html) 
     * [show page for selectable elements](./tutoal/5_coupang_imgs/templates/show_selectable_elements.html) 
   * Pipeline Flow: [Link](./tutorial/5_coupang_imgs/coupang_data_admin_page_2nd.pdf) 
+
+# :three: 회고
+
+* Front-end, Back-end 를 모두 체험해보며 웹 개발의 전반적인 프로세스를 경험해보았음.
+  * 버그가 많기는 했지만 실제로 돌아가는 웹 애플리케이션을 만들어보았을때 내심 뿌듯함을 느꼈음. 
+  * 프로젝트를 진행할때는 먼저 어떻게든 빠르게 돌아가는 웹 앱을 만들어보는 것이 중요하다고 생각하게됨.
+* 주로 Back-end 에만 몰두했기때문에 Front-end 를 거의 신경쓰지 않아 UI 가 엉망인 점이 아쉬웠음.
+* 코드를 깔끔하게 짜지도 않았고 모든 기능을 하나의 모듈에 몰아넣다보니 기능추가도 어렵고 기독성도 떨어졌다는 점이 아쉬웠음.
+  * 그러나 그만큼 리팩토링의 중요성을 알게된 계기가 된 점은 긍정적으로 생각함.
+  * 사내 개발자들이 리팩토링 작업에만 2달 가까이 되는 시간을 쏟아부은 것이 이해가 되었고 꼭 필요한 작업이라는 점을 깨닫는 계기가 되었음.
