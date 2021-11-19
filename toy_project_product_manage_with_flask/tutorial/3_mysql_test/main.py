@@ -7,7 +7,7 @@ import pymysql
 DEBUG = True
 SECRET_KEY = "development key"
 USERNAME = "admin"
-PASSWORD = "babylab admin"
+PASSWORD = "admin"
 ##########################
 
 
