@@ -3,14 +3,10 @@
 
 # :two: Contents
 
-1. Crawling
+1. [Crawling](./crawling)
 
    * Crawling Tutorial - Self Study
    * I try to collect data from [EWG](https://www.ewg.org/skindeep/search/?search=&search_type=ingredients), [kcia](https://kcia.or.kr/cid/search/ingd_list.php?skind=ALL&sword=&sword2=), [kcii](http://cis.kcii.re.kr/assessmentSearch/list.do), [chamnet](http://www.chemnet.com/cas/kr/).
-   * [<u>링크</u>](./crawling)
 
-2. Web Application with Flask - Toy Project
-
+2. [Web Application with Flask - Toy Project](./toy_project_product_manage_with_flask)
    * I write this codes with [Flask Documents](https://flask.palletsprojects.com/en/2.0.x/).
-
-   * [<u>링크</u>](./toy_project_product_manage_with_flask)
